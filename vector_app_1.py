@@ -85,11 +85,19 @@ if st.button("計算する"):
         theta = np.degrees(np.arccos(cos_theta))
 
         # --------------------------------
-        # 扇形（Wedge）で角度を正確に描画
+        # 角度の向きを判定して 180° 以下に調整
         # --------------------------------
         angle_a = math.degrees(math.atan2(a[1], a[0]))
-        angle_b = angle_a + theta
+        angle_b = math.degrees(math.atan2(b[1], b[0]))
 
+        # 差を 0〜360° に正規化
+        angle_diff = (angle_b - angle_a) % 360
+
+        # 180° を超える場合は逆方向にする
+        if angle_diff > 180:
+            angle_b = angle_a - (360 - angle_diff)
+
+        # 扇形の半径
         r = min(norm_a, norm_b) * 0.6
 
         wedge = Wedge(
