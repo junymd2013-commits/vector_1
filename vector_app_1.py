@@ -1,6 +1,7 @@
 import streamlit as st
 import numpy as np
 import matplotlib.pyplot as plt
+from matplotlib.patches import Wedge
 import math
 
 st.set_page_config(page_title="ベクトルの内積と角度", layout="centered")
@@ -8,7 +9,7 @@ st.set_page_config(page_title="ベクトルの内積と角度", layout="centered
 st.markdown("<h2 style='text-align:center;'>ベクトルの内積と角度を調べよう（Streamlit版）</h2>", unsafe_allow_html=True)
 
 # --------------------------------
-# 入力欄（縦にまとめてスッキリ配置）
+# 入力欄
 # --------------------------------
 st.subheader("ベクトルの成分を入力してください")
 
@@ -50,7 +51,7 @@ if st.button("計算する"):
     b = np.array([bx_val, by_val])
 
     # --------------------------------
-    # グラフ描画（サイズを小さくしてはみ出し防止）
+    # グラフ描画
     # --------------------------------
     fig, axp = plt.subplots(figsize=(5, 5))
 
@@ -84,23 +85,23 @@ if st.button("計算する"):
         theta = np.degrees(np.arccos(cos_theta))
 
         # --------------------------------
-        # 角度の扇形（弧）を描画
+        # 扇形（Wedge）で角度を正確に描画
         # --------------------------------
-        angle_rad = np.radians(theta)
+        angle_a = math.degrees(math.atan2(a[1], a[0]))
+        angle_b = angle_a + theta
 
-        # 扇形の半径（短すぎず長すぎず）
         r = min(norm_a, norm_b) * 0.6
 
-        # ベクトル a の角度
-        angle_a = math.atan2(a[1], a[0])
-
-        # 扇形の角度範囲
-        arc_angles = np.linspace(angle_a, angle_a + angle_rad, 100)
-        arc_x = r * np.cos(arc_angles)
-        arc_y = r * np.sin(arc_angles)
-
-        axp.plot(arc_x, arc_y, color="green", linewidth=2)
-        axp.fill_between(arc_x, arc_y, color="green", alpha=0.2)
+        wedge = Wedge(
+            center=(0, 0),
+            r=r,
+            theta1=angle_a,
+            theta2=angle_b,
+            facecolor="green",
+            alpha=0.25,
+            edgecolor="green"
+        )
+        axp.add_patch(wedge)
 
     st.pyplot(fig)
 
@@ -118,9 +119,6 @@ if st.button("計算する"):
 
     st.write(f"**角度：{theta:.2f}°**")
 
-    # --------------------------------
-    # 鋭角・鈍角・直角の判定
-    # --------------------------------
     if dot > 0:
         st.success("内積 > 0（鋭角）")
     elif dot < 0:
