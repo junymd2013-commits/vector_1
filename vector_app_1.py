@@ -80,22 +80,26 @@ if st.button("計算する"):
     norm_b = np.linalg.norm(b)
 
     if norm_a != 0 and norm_b != 0:
+        # 内積から求めた角度（常に 0〜180°）
         cos_theta = dot / (norm_a * norm_b)
         cos_theta = np.clip(cos_theta, -1, 1)
-        theta = np.degrees(np.arccos(cos_theta))
+        theta = np.degrees(np.arccos(cos_theta))  # ← これが正しい角度
 
         # --------------------------------
-        # 角度の向きを判定して 180° 以下に調整
+        # 角度の向きだけ atan2 で判定
         # --------------------------------
-        angle_a = math.degrees(math.atan2(a[1], a[0]))
-        angle_b = math.degrees(math.atan2(b[1], b[0]))
+        angle_a = math.atan2(a[1], a[0])
+        angle_b = math.atan2(b[1], b[0])
 
-        # 差を 0〜360° に正規化
-        angle_diff = (angle_b - angle_a) % 360
+        # 向き（符号）だけ使う
+        delta_raw = angle_b - angle_a
+        direction = 1 if delta_raw >= 0 else -1
 
-        # 180° を超える場合は逆方向にする
-        if angle_diff > 180:
-            angle_b = angle_a - (360 - angle_diff)
+        # 扇形の開始角度（度）
+        theta1 = math.degrees(angle_a)
+
+        # 扇形の終了角度（度）
+        theta2 = theta1 + direction * theta
 
         # 扇形の半径
         r = min(norm_a, norm_b) * 0.6
@@ -103,8 +107,8 @@ if st.button("計算する"):
         wedge = Wedge(
             center=(0, 0),
             r=r,
-            theta1=angle_a,
-            theta2=angle_b,
+            theta1=theta1,
+            theta2=theta2,
             facecolor="green",
             alpha=0.25,
             edgecolor="green"
